@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<canvas id = 'canvas'></canvas>
+
+</body>
+
+
+<script>
+	
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = '1200';
+canvas.height = '900';
+
+
+let gameStatus = 'stopped';
+
+
+const backImg = new Image();
+backImg.src = 'http://drwallpaper.com/wp-content/uploads/2016/01/kung_fu_panda_3_wallpaper_hd_background_download_desktop1.jpg';
+
+const PoImg = new Image();
+PoImg.src = 'http://pluspng.com/img-png/kung-fu-panda-png-kung-fu-panda-png-png-image-512.png';
+
+const fireImg = new Image();
+fireImg.src = 'http://www.transparentpng.com/download/fire-flames/TD56Ih-fire-flames-picture.png';
+
+const TaiLungImg = new Image();
+TaiLungImg.src = 'https://vignette.wikia.nocookie.net/fictional-battle-omniverse/images/c/c5/Tai_Lung_Kung_Fu_Panda.png/revision/latest?cb=20160705223705';
+
+
+const rand = function(num) {
+	return Math.floor(Math.random() * num) + 1;
+};
+
+const np =  function(){
+	const dir = rand(2);
+	if(dir === 1){
+	return -1;
+	}
+	if(dir === 2){
+		return 1;
+	}
+};
+
+
+const createTaiLung = function(count, canvasWidth, canvasHeight) {
+	let arr = [];
+	const colorArr = ['black', 'grey', 'red', 'blue', 'yellow', 'green', 'orange', 'purple' ];
+
+	const helper = function(i){
+		if(i === count){
+			return;
+		}
+		arr[arr.length] ={
+			x: rand(canvas.width - 125),
+			y: rand(canvas.height - 200),
+			width: 125,
+			height: 200,
+			xDir: np(),
+			yDir: np(),
+			speed: rand(5),
+			draw: function() {
+				ctx.drawImage(TaiLungImg ,this.x, this.y, this.width, this.height)
+				},
+			update: function() {
+				this.x += this.xDir * this.speed;
+				this.y += this.yDir * this.speed;
+				if (this.x >= canvasWidth - this.width || this.x <= 0) {
+					this.xDir *= -1;
+					this.color = colorArr[rand(colorArr.length)-1];
+				}
+				if (this.y >= canvasHeight - this.height || this.y <= 0) {
+					this.yDir *= -1;
+					this.color = colorArr[rand(colorArr.length)-1];
+				}
+			}
+		};
+		helper(i + 1);
+	};
+	helper(0);
+	return arr;
+};
+
+const createPo = function() {
+	return{
+		x: 50,
+		y: 600,
+		width: 200,
+		height: 200,
+		xdir: 0,
+		ydir: 0,
+		speed: 5,
+		draw: function(){
+			ctx.drawImage(PoImg, this.x, this.y, this.width, this.height);
+		},
+		update: function(){
+			this.x += this.xdir * this.speed;
+			this.y += this.ydir * this.speed;
+			if(this.x === canvas.width){
+				this.x = 0;
+			}
+			if(this.x + this.width === 0){
+				this.x = canvas.width;
+			}
+			if(this.y === canvas.height){
+				this.y = 0;
+			}
+			if(this.y + this.height === 0){
+				this.y = canvas.height;
+			}
+		}
+	}
+};
+
+const gameData = {
+	Po: createPo(),
+	TaiLungs: createTaiLung(5, canvas.width, canvas.height)
+};
+
+
+const intersect = function(rect1, rect2) {
+	const x = Math.max(rect1.x, rect2.x);
+	const num1 = Math.min(rect1.x + rect1.w, rect2.x + rect2.w);
+	const y = Math.max(rect1.y, rect2.y);
+	const num2 = Math.min(rect1.y + rect1.h, rect2.y + rect2.h);
+	return (num1 >= x && num2 >= y);
+};
+
+
+const draw = function(){
+	gameData.Po.draw();
+	const helper = function(i){
+		if(i === gameData.TaiLungs.length){
+			return;
+		}
+		gameData.TaiLungs[i].draw();
+		helper(i + 1);
+	};
+	helper(0);
+};
+
+
+const update = function(){
+	gameData.Po.update();
+
+	const helper = function(i){
+		if(i === gameData.TaiLungs.length){
+			return;
+		}
+		gameData.TaiLungs[i].update();
+		helper(i + 1);
+	};
+	helper(0);
+
+// es antery chi ashkhatum!!!
+//tarberak 1in
+        //gameData.villains.forEach(villain => {
+        //    if(intersect(villain, gameData.hero)) {
+        //        gameStatus = 'game over';
+        //    }
+        //});
+
+
+//tarperak 2rt
+	const counter = function(i){
+		if(i === gameData.TaiLungs.length){
+			return;
+		}
+
+		if(intersect(gameData.TaiLungs[i], gameData.Po)) {
+			gameStatus = 'game over';
+		}
+		counter(i + 1);
+	};
+	counter(0);
+
+};
+
+
+const animation = function(){
+	if(gameStatus === 'playing'){
+		ctx.drawImage(backImg, 0, 0, canvas.width, canvas.height)
+		draw();
+		update();
+		requestAnimationFrame(animation);
+	}
+	else if(gameStatus === 'game over'){
+		alert('I Win Panda, Game Over');
+	}
+};
+animation();
+
+
+
+const leftKey = 37;
+const upKey = 38;
+const rightKey = 39;
+const downKey = 40;
+
+
+document.addEventListener('keydown', function(e){
+	e.preventDefault();
+	const keyCode = e.keyCode;
+	if(keyCode === leftKey){
+		gameData.Po.xdir = -1;
+	}
+	else if(keyCode === upKey){
+		gameData.Po.ydir = -1;
+	}
+	else if(keyCode === rightKey){
+		gameData.Po.xdir = 1;
+	}
+	else if(keyCode === downKey){
+		gameData.Po.ydir = 1;
+	}
+});
+
+document.addEventListener('keyup', function(e){
+	e.preventDefault();
+	const keyCode = e.keyCode;
+	if(keyCode === leftKey || keyCode === rightKey){
+		gameData.Po.xdir = 0;
+	}
+	if(keyCode === upKey || keyCode === downKey){
+		gameData.Po.ydir = 0;
+	}
+});
+
+document.addEventListener('click', function(e) {
+	if(gameStatus === 'stopped') {
+		gameStatus = 'playing';
+		animation();
+	}
+});
+
+
+
+
+</script>
+
+
+
+
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+<canvas id = 'canvas'></canvas>
+
+</body>
+
+
+<script>
+	
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = '1200';
+canvas.height = '900';
+
+const rand = function(num) {
+	return Math.floor(Math.random() * num) + 1;
+};
+
+const np =  function(){
+	const dir = rand(2);
+	if(dir === 1){
+	return -1;
+	}
+	if(dir === 2){
+		return 1;
+	}
+};
+
+
+const createBoxes = function(count, canvasWidth, canvasHeight) {
+	let arr = [];
+	const colorArr = ['black', 'grey', 'red', 'blue', 'yellow', 'green', 'orange', 'purple' ];
+
+	const helper = function(i){
+		if(i === count){
+			return;
+		}
+		arr[arr.length] ={
+			x: rand(canvas.width - 30),
+			y: rand(canvas.height - 30),
+			width: 30,
+			height: 30,
+			xDelta: np(),
+			yDelta: np(),
+			speed: rand(10),
+			color: colorArr[rand(colorArr.length)-1],
+			draw: function() {
+				ctx.fillStyle = this.color
+				ctx.fillRect(this.x, this.y, this.width, this.height);
+				},
+			update: function () {
+				this.x += this.xDelta * this.speed;
+				this.y += this.yDelta * this.speed;
+				if (this.x >= canvasWidth - this.width || this.x <= 0) {
+					this.xDelta *= -1;
+					this.color = colorArr[rand(colorArr.length)-1];
+				}
+				if (this.y >= canvasHeight - this.height || this.y <= 0) {
+					this.yDelta *= -1;
+					this.color = colorArr[rand(colorArr.length)-1];
+				}
+			}
+		};;
+		helper(i + 1);
+	};
+	helper(0);
+	return arr;
+};
+const newArr = createBoxes(10, canvas.width, canvas.height);
+
+
+
+const draw = function(){
+	const helper = function(i){
+		if(i === newArr.length){
+			return;
+		}
+		newArr[i].draw();
+		helper(i + 1);
+	};
+	helper(0);
+};
+
+
+const update = function(){
+	const helper = function(i){
+		if(i === newArr.length){
+			return;
+		}
+		newArr[i].update();
+		helper(i + 1);
+	};
+	helper(0);
+};
+
+
+const animation = function(){
+	ctx.fillStyle = 'lightgrey';
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	draw();
+	update();
+	requestAnimationFrame(animation);
+};
+animation();
+
+
+
+
+</script>
+
+
+
+
+</html>
