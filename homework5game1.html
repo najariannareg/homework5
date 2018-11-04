@@ -52,14 +52,13 @@ const np =  function(){
 
 const createTaiLung = function(count, canvasWidth, canvasHeight) {
 	let arr = [];
-	const colorArr = ['black', 'grey', 'red', 'blue', 'yellow', 'green', 'orange', 'purple' ];
 
 	const helper = function(i){
 		if(i === count){
 			return;
 		}
 		arr[arr.length] ={
-			x: rand(canvas.width - 125),
+			x: rand(canvas.width / 2 - 125) + canvas.width / 2,
 			y: rand(canvas.height - 200),
 			width: 125,
 			height: 200,
@@ -74,11 +73,9 @@ const createTaiLung = function(count, canvasWidth, canvasHeight) {
 				this.y += this.yDir * this.speed;
 				if (this.x >= canvasWidth - this.width || this.x <= 0) {
 					this.xDir *= -1;
-					this.color = colorArr[rand(colorArr.length)-1];
 				}
 				if (this.y >= canvasHeight - this.height || this.y <= 0) {
 					this.yDir *= -1;
-					this.color = colorArr[rand(colorArr.length)-1];
 				}
 			}
 		};
@@ -121,16 +118,14 @@ const createPo = function() {
 
 const gameData = {
 	Po: createPo(),
-	TaiLungs: createTaiLung(5, canvas.width, canvas.height)
+	TaiLungs: createTaiLung(3, canvas.width, canvas.height)
 };
 
 
 const intersect = function(rect1, rect2) {
-	const x = Math.max(rect1.x, rect2.x);
-	const num1 = Math.min(rect1.x + rect1.w, rect2.x + rect2.w);
-	const y = Math.max(rect1.y, rect2.y);
-	const num2 = Math.min(rect1.y + rect1.h, rect2.y + rect2.h);
-	return (num1 >= x && num2 >= y);
+
+	return (rect1.x <= rect2.x + rect2.width && rect1.x + rect1.width >= rect2.x 
+		&& rect1.y <= rect2.y + rect2.height && rect1.y + rect1.height >= rect2.y);	
 };
 
 
@@ -155,31 +150,14 @@ const update = function(){
 			return;
 		}
 		gameData.TaiLungs[i].update();
-		helper(i + 1);
-	};
-	helper(0);
-
-// es antery chi ashkhatum!!!
-//tarberak 1in
-        //gameData.villains.forEach(villain => {
-        //    if(intersect(villain, gameData.hero)) {
-        //        gameStatus = 'game over';
-        //    }
-        //});
-
-
-//tarperak 2rt
-	const counter = function(i){
-		if(i === gameData.TaiLungs.length){
-			return;
-		}
 
 		if(intersect(gameData.TaiLungs[i], gameData.Po)) {
 			gameStatus = 'game over';
 		}
-		counter(i + 1);
+
+		helper(i + 1);
 	};
-	counter(0);
+	helper(0);
 
 };
 
@@ -195,8 +173,6 @@ const animation = function(){
 		alert('I Win Panda, Game Over');
 	}
 };
-animation();
-
 
 
 const leftKey = 37;
@@ -233,19 +209,15 @@ document.addEventListener('keyup', function(e){
 	}
 });
 
-document.addEventListener('click', function(e) {
-	if(gameStatus === 'stopped') {
+document.addEventListener('click', function(e){
+	if(gameStatus === 'stopped'){
 		gameStatus = 'playing';
 		animation();
 	}
 });
 
 
-
-
 </script>
-
-
 
 
 </html>
